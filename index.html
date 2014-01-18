@@ -22,9 +22,13 @@ google.setOnLoadCallback(drawChart);
 // kn 
 var lat = 47.662369;
 var lng = 9.17322315;
+// year
+var year = 2014;
+// date
+var myDate = new Date(year, 0, 1, 12);
 
 var dataRaw = new Array();
-dataRaw[0] = new Array(3);
+dataRaw[0] = new Array(6);
 dataRaw[0][0] = 'day';
 dataRaw[0][1] = 'h before sunrise';
 dataRaw[0][2] = { role: 'style' };
@@ -35,16 +39,16 @@ dataRaw[0][6] = { role: 'style' };
 
 var dataStr = '<table>';
 
-// date
-var myDate=new Date(2014, 0, 1, 12);
-for (var cnt = 1; myDate < new Date(2014, 11, 31); cnt = cnt+1) {
+// color
+var nightStyle = 'color: #282729; stroke-width: 0;';
+var sunshineStyle = 'color: #CC6F05; stroke-width: 0;';
+
+var maxThisYear = new Date(year+1, 0, 1);
+for (var cnt = 1; myDate.getTime() <= maxThisYear.getTime(); cnt = cnt+1) {
 
   var crtDate = new Date(myDate);
   // get today's sunlight times for London
   var times = SunCalc.getTimes(crtDate, lat, lng);
-
-  // 08:07:41 -> 17:00:31
-  // shining = set - rise
 
   var shining = diff(times.sunset - times.sunrise);
   var thisDayMin = new Date(crtDate.getFullYear(), crtDate.getMonth(), crtDate.getDate());
@@ -53,16 +57,16 @@ for (var cnt = 1; myDate < new Date(2014, 11, 31); cnt = cnt+1) {
   var sunset = diff(thisDayMax - times.sunset);
 
   // data - raw
-  dataRaw[cnt] = new Array(3);
+  dataRaw[cnt] = new Array(6);
   dataRaw[cnt][0] = crtDate;
   dataRaw[cnt][1] = sunrise;
-  dataRaw[cnt][2] = '#000000';
+  dataRaw[cnt][2] = nightStyle;
 
   dataRaw[cnt][3] = shining;
-  dataRaw[cnt][4] = '#CC6F05';
+  dataRaw[cnt][4] = sunshineStyle;
 
   dataRaw[cnt][5] = sunset;
-  dataRaw[cnt][6] = '#000000';
+  dataRaw[cnt][6] = nightStyle;
 
   dataStr += '<tr>'
   // format sunrise time from the Date object
@@ -112,14 +116,17 @@ function drawChart() {
   var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
   chart.draw(data, options);
 
-  //document.getElementById('sunny').innerHTML = dataStr;
+  // debug
+  document.getElementById('sunny').innerHTML = dataStr;
 }
   </script>
 </head>
 <body>
   <h1>sunny 5000 <span class="mark">☀☀☀☀☀</span></h1>
   <h3>h of (possible) <span class="mark">sunshine</span> during <span class="mark">2014</span></span> in <span class="mark">kn</span> [47.662369, 9.17322315]</h3>
-  <div id="chart_div"></div>
+  <div style="width: 1200px; height: 420px;">
+    <div id="chart_div"></div>
+  </div>
   <div id="sunny"></div>
   <p style="text-align: right;">this is a <b>quick & dirty</b> production of <a class="mark" href="http://unividuell.org">unividuell</a>; 
   credits to <a style="color: #CC6F05; text-decoration: none;" href="https://github.com/mourner/suncalc">suncalc</a>!</p>
