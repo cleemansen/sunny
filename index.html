@@ -1,0 +1,127 @@
+<html>
+<head>
+  <title>sunny</title>
+  <meta name="author" content="unividuell">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <!--Load the AJAX API-->
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <!-- Load the suncalc lib-->
+  <script type="text/javascript" src="js/suncalc.js"></script>
+  <style type="text/css">
+  html {font-family: monospace;}
+  .mark {background-color: #CC6F05; color: #c0ffee; text-decoration: none; padding: 0 4px;}
+  </style>
+
+  <script type="text/javascript">
+// Load the Visualization API and the piechart package.
+google.load('visualization', '1.0', {'packages':['corechart']});
+
+// Set a callback to run when the Google Visualization API is loaded.
+google.setOnLoadCallback(drawChart);
+
+// kn 
+var lat = 47.662369;
+var lng = 9.17322315;
+
+var dataRaw = new Array();
+dataRaw[0] = new Array(3);
+dataRaw[0][0] = 'day';
+dataRaw[0][1] = 'h before sunrise';
+dataRaw[0][2] = { role: 'style' };
+dataRaw[0][3] = 'h of sun';
+dataRaw[0][4] = { role: 'style' };
+dataRaw[0][5] = 'h after sunset';
+dataRaw[0][6] = { role: 'style' };
+
+var dataStr = '<table>';
+
+// date
+var myDate=new Date(2014, 0, 1, 12);
+for (var cnt = 1; myDate < new Date(2014, 11, 31); cnt = cnt+1) {
+
+  var crtDate = new Date(myDate);
+  // get today's sunlight times for London
+  var times = SunCalc.getTimes(crtDate, lat, lng);
+
+  // 08:07:41 -> 17:00:31
+  // shining = set - rise
+
+  var shining = diff(times.sunset - times.sunrise);
+  var thisDayMin = new Date(crtDate.getFullYear(), crtDate.getMonth(), crtDate.getDate());
+  var sunrise = diff(times.sunrise - thisDayMin);
+  var thisDayMax = new Date(thisDayMin.getFullYear(), thisDayMin.getMonth(), thisDayMin.getDate(), 23, 59, 59);
+  var sunset = diff(thisDayMax - times.sunset);
+
+  // data - raw
+  dataRaw[cnt] = new Array(3);
+  dataRaw[cnt][0] = crtDate;
+  dataRaw[cnt][1] = sunrise;
+  dataRaw[cnt][2] = '#000000';
+
+  dataRaw[cnt][3] = shining;
+  dataRaw[cnt][4] = '#CC6F05';
+
+  dataRaw[cnt][5] = sunset;
+  dataRaw[cnt][6] = '#000000';
+
+  dataStr += '<tr>'
+  // format sunrise time from the Date object
+  var sunriseStr = td(crtDate) + td(times.sunrise) + td(times.sunset) + td(sunrise);
+  dataStr += sunriseStr + '';
+
+  dataStr += '</tr>'
+  myDate.setDate(myDate.getDate()+1);
+  
+}
+
+dataStr += '</table>';
+
+function diff(diff) {
+  // millisec / sec / minute
+  // * 100 / 100 -> x,yy
+  return Math.round((diff/1000/60/60) * 100) / 100;
+}
+
+function td(inner) {
+  return '<td>' + inner + '</td>';
+}
+
+// Callback that creates and populates a data table,
+// instantiates the pie chart, passes in the data and
+// draws it.
+function drawChart() {
+
+  // Create the data table.
+  var data = google.visualization.arrayToDataTable(dataRaw);
+
+  // Set chart options
+  var options = {
+                  title:'Sunny',
+                  width:'100%',
+                  height:550,
+                  vAxis: {maxValue: 24, ticks: [0,6,8,16,18,20,24]},
+                  isStacked: true,
+                  chartArea: {left: 50, top: 50, width: '100%', height: '80%'},
+                  legend: { position: "none" },
+                  bar: {groupWidth: '100%'},
+                  fontName: 'monospace',
+                  titlePosition: 'none'
+                };
+
+  // Instantiate and draw our chart, passing in some options.
+  var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+  chart.draw(data, options);
+
+  //document.getElementById('sunny').innerHTML = dataStr;
+}
+  </script>
+</head>
+<body>
+  <h1>sunny 5000 <span class="mark">☀☀☀☀☀</span></h1>
+  <h3>h of (possible) <span class="mark">sunshine</span> during <span class="mark">2014</span></span> in <span class="mark">kn</span> [47.662369, 9.17322315]</h3>
+  <div id="chart_div"></div>
+  <div id="sunny"></div>
+  <p style="text-align: right;">this is a <b>quick & dirty</b> production of <a class="mark" href="http://unividuell.org">unividuell</a>; 
+  credits to <a style="color: #CC6F05; text-decoration: none;" href="https://github.com/mourner/suncalc">suncalc</a>!</p>
+</body>
+</html>
