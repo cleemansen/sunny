@@ -14,7 +14,7 @@
 
   <script type="text/javascript">
 // Load the Visualization API and the piechart package.
-google.load('visualization', '1.0', {'packages':['corechart']});
+google.load('visualization', '1.1', {'packages':['corechart']});
 
 // Set a callback to run when the Google Visualization API is loaded.
 //google.setOnLoadCallback(drawChart);
@@ -43,15 +43,13 @@ function demo() {
   var myDate = new Date(year, 0, 1, 12);
 
   // Create and populate the data table.
-  var sunriseTable = new google.visualization.DataTable();
-  var sunsetTable = new google.visualization.DataTable();
+  var data = new google.visualization.DataTable();
 
   // Add columns
-  sunriseTable.addColumn('date', 'Day');
-  sunriseTable.addColumn('timeofday', 'time');
-
-  sunsetTable.addColumn('date', 'Day');
-  sunsetTable.addColumn('timeofday', 'time');
+  data.addColumn('date', 'Day');
+  data.addColumn('timeofday', 'sunrise');
+  data.addColumn('timeofday', 'sunset');
+  data.addColumn('timeofday', 'midnight');
 
   // color
   var nightStyle = 'color: #282729; stroke-width: 0;';
@@ -65,14 +63,11 @@ function demo() {
     var times = SunCalc.getTimes(crtDate, lat, lng);
 
     // data - raw
-    sunriseTable.addRow();
-    sunriseTable.setCell(cnt, 0, crtDate);
-    sunriseTable.setCell(cnt, 1, [times.sunrise.getHours(), times.sunrise.getMinutes(), times.sunrise.getSeconds()]);
-    
-    sunsetTable.addRow();
-    sunsetTable.setCell(cnt, 0, crtDate);
-    sunsetTable.setCell(cnt, 1, [times.sunset.getHours(), times.sunset.getMinutes(), times.sunset.getSeconds()]);
-
+    data.addRow();
+    data.setCell(cnt, 0, crtDate);
+    data.setCell(cnt, 1, [times.sunrise.getHours(), times.sunrise.getMinutes(), times.sunrise.getSeconds()]);
+    data.setCell(cnt, 2, [times.sunset.getHours(), times.sunset.getMinutes(), times.sunset.getSeconds()]);
+    data.setCell(cnt, 3, [23, 59, 59]);
 
     myDate.setDate(myDate.getDate()+1);
   }
@@ -81,23 +76,20 @@ function demo() {
                   title:'Sunny',
                   width:1100,
                   height:400,
-                  vAxis: {maxValue: 24, ticks: [0,6,8,16,18,20,24]},
-                  isStacked: false,
-                  chartArea: {left: 50, top: 50, width: 365*3, height: '100%'},
+                  vAxis: {ticks: [[0, 0, 0], [6, 0, 0], [8, 0, 0], [10, 0, 0], [16, 0, 0], [18, 0, 0], [20, 0, 0], [23, 59, 59]]},
+                  hAxis: {ticks: [new Date(year, 0, 1)]},
+                  chartArea: {left: 50, top: 50, width: '85%', height: '65%'},
                   legend: { position: "none" },
-                  bar: {groupWidth: 1},
+                  // bar: {groupWidth: 1},
                   fontName: 'monospace',
                   titlePosition: 'none',
-                  diff: { newData: { widthFactor: 1 } },
-                  colors: ['#282729', '#CC6F05'],
-                  backgroundColor: '#282729',
+                  colors: ['#282729', '#CC6F05']
                 };
 
   // Create and draw the visualization.
-  var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+  var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
 
-  var diffData = chart.computeDiff(sunsetTable, sunriseTable);
-  chart.draw(diffData, options);
+  chart.draw(data, options);
 }
 
   </script>
@@ -105,7 +97,7 @@ function demo() {
 <body>
   <h1>sunny 5000 <span class="mark">☀☀☀☀☀</span></h1>
   <h3>h of (possible) <span class="mark">sunshine</span> during <span class="mark">2014</span></span> in <span class="mark">kn</span> [47.662369, 9.17322315]</h3>
-  <div style="width: 1200px; height: 420px;">
+  <div>
     <div id="chart_div"></div>
   </div>
   <div id="sunny"></div>
