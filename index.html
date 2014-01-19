@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>sunny</title>
@@ -7,18 +8,44 @@
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <!-- Load the suncalc lib-->
   <script type="text/javascript" src="js/suncalc.js"></script>
+  <!-- Load the Google maps API v3 -->
+  <script type="text/javascript"
+      src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCB8VM7adC1V60gv78IiZ8NrW3RVR2J3hI&sensor=true"></script>
+  <!-- my CSS -->
   <style type="text/css">
-  html {font-family: monospace;}
-  .mark {background-color: #CC6F05; color: #c0ffee; text-decoration: none; padding: 0 4px;}
+      html { height: 99%; font-family: monospace; }
+      body { height: 98%; margin: 0; padding: 0 }
+      #map_canvas { height: 100% }
+      .mark {background-color: #CC6F05; color: #c0ffee; text-decoration: none; padding: 0 4px;}
   </style>
 
   <script type="text/javascript">
+/* ################################################################## *
+ *                                global stuff
+ * ################################################################## */
+
+// kn 
+var lat = 47.662369;
+var lng = 9.17322315;
+// year
+var year = 2014;
+// the map
+var map;
+var marker;
+var geocoder;
+// color
+var night = '#282729';
+var sunshine = '#CC6F05';
+
+/* ################################################################## *
+ *                                chart stuff
+ * ################################################################## */
+
 // Load the Visualization API and the piechart package.
 google.load('visualization', '1.1', {'packages':['corechart']});
 
 // Set a callback to run when the Google Visualization API is loaded.
-//google.setOnLoadCallback(drawChart);
-google.setOnLoadCallback(demo);
+google.setOnLoadCallback(drawChart);
 
 function diff(diff) {
   // millisec / sec / minute
@@ -26,18 +53,11 @@ function diff(diff) {
   return Math.round((diff/1000/60/60) * 100) / 100;
 }
 
-function demo() {
-
-  // kn 
-  var lat = 47.662369;
-  var lng = 9.17322315;
-  // year
-  var year = 2014;
-  // date
-  var myDate = new Date(year, 0, 1, 12);
-
+function drawChart() {
   // Create and populate the data table.
   var data = new google.visualization.DataTable();
+  // date
+  var myDate = new Date(year, 0, 1, 12);
 
   // Add columns
   data.addColumn('date', 'Day');
@@ -45,10 +65,6 @@ function demo() {
   data.addColumn('timeofday', 'midnight');
   data.addColumn('timeofday', 'sunset');
   data.addColumn('timeofday', 'sunrise');
-
-  // color
-  var night = '#282729';
-  var sunshine = '#CC6F05';
 
   var maxThisYear = new Date(year+1, 0, 1);
   for (var cnt = 0; myDate.getTime() <= maxThisYear.getTime(); cnt = cnt+1) {
@@ -70,12 +86,12 @@ function demo() {
   var options = {
                   title:'Sunny',
                   width:'100%',
-                  height:450,
+                  height:320,
                   vAxis: {ticks: [[0, 0, 0], [6, 0, 0], [8, 0, 0], [10, 0, 0], [16, 0, 0], [18, 0, 0], [20, 0, 0], [23, 59, 59]]},
                   hAxis: {ticks: [new Date(year, 0, 1)]},
-                  chartArea: {left: 50, top: 50, width: '95%', height: '65%'},
+                  chartArea: {left: 50, top: 15, width: '95%', height: '90%'},
                   legend: { position: "none" },
-                  fontName: 'monospace',
+                  // fontName: 'monospace',
                   titlePosition: 'none',
                   series: {
                     0:{color: night, areaOpacity: 0.4},   // after sunset
@@ -91,15 +107,74 @@ function demo() {
   chart.draw(data, options);
 }
 
+/* ################################################################## *
+ *                                map stuff
+ * ################################################################## */
+
+
+function initMap() {
+  geocoder = new google.maps.Geocoder();
+  var mapOptions = {
+    center: new google.maps.LatLng(lat, lng),
+    zoom: 1,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  };
+
+  map = new google.maps.Map(
+    document.getElementById("map_canvas"), 
+    mapOptions);
+
+  marker = new google.maps.Marker({
+    position: map.getCenter(),
+    map: map,
+    title: 'LOCATION'
+  });
+
+  placeMarker(map.getCenter());
+
+  google.maps.event.addListener(map, 'click', function(event) {
+    placeMarker(event.latLng);
+  });
+}
+
+function placeMarker(location) {
+
+  marker.setPosition(location);
+
+  lat = location.lat();
+  lng = location.lng();
+
+  drawChart();
+
+  codeLatLng(location);
+
+  // map.setCenter(location);
+}
+
+function codeLatLng(location) {
+  
+  geocoder.geocode(
+    {'latLng': location}, 
+    function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+        if (results[1]) {
+          document.getElementById("location").innerHTML = results[1].formatted_address + " " + location.toString();
+        }
+      } else {
+        alert("Geocoder failed due to: " + status);
+      }
+    });
+    
+}
+
   </script>
 </head>
-<body>
-  <h1>sunny 5000 <span class="mark">☀☀☀☀☀</span></h1>
-  <h3>h of (possible) <span class="mark">sunshine</span> during <span class="mark">2014</span></span> in <span class="mark">kn</span> [47.662369, 9.17322315]</h3>
+<body onload="initMap()">
+  <h3><span class="mark">☀☀☀☀☀</span>: <span class="mark">sunrise / sunset</span> during <span class="mark">2014</span></span> @<span id="location" class="mark">kn</span></h3>
   <div>
     <div id="chart_div"></div>
+  <div id="map_canvas" style="width:100%; height:250px"></div>
   </div>
-  <div id="sunny"></div>
   <p style="text-align: right;">this is a <b>quick & dirty</b> production of <a class="mark" href="http://unividuell.org">unividuell</a>; 
   credits to <a style="color: #CC6F05; text-decoration: none;" href="https://github.com/mourner/suncalc">suncalc</a>!</p>
 </body>
