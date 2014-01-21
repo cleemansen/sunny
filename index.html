@@ -45,7 +45,8 @@ var sunshine = '#CC6F05';
 google.load('visualization', '1.1', {'packages':['corechart']});
 
 // Set a callback to run when the Google Visualization API is loaded.
-google.setOnLoadCallback(drawChart);
+// gmaps forces an update: is this a good idea?
+// google.setOnLoadCallback(drawChart);
 
 function diff(diff) {
   // millisec / sec / minute
@@ -58,13 +59,15 @@ function drawChart() {
   var data = new google.visualization.DataTable();
   // date
   var myDate = new Date(year, 0, 1, 12);
+  var now = new Date();
 
   // Add columns
-  data.addColumn('date', 'Day');
+  data.addColumn('date', 'Day'); var indexHead = 0;
   // ordering this way because of areaOpacity.
-  data.addColumn('timeofday', 'midnight');
-  data.addColumn('timeofday', 'sunset');
-  data.addColumn('timeofday', 'sunrise');
+  data.addColumn('timeofday', 'midnight'); var indexMidnight = 1;
+  data.addColumn('timeofday', 'sunset'); var indexSunset = 2;
+  data.addColumn('timeofday', 'sunrise'); var indexSunrise = 3;
+  data.addColumn('timeofday', 'now'); var indexNow = 4;
 
   var maxThisYear = new Date(year+1, 0, 1);
   for (var cnt = 0; myDate.getTime() <= maxThisYear.getTime(); cnt = cnt+1) {
@@ -75,10 +78,17 @@ function drawChart() {
 
     // data - raw
     data.addRow();
-    data.setCell(cnt, 0, crtDate);
-    data.setCell(cnt, 3, [times.sunrise.getHours(), times.sunrise.getMinutes(), times.sunrise.getSeconds()]);
-    data.setCell(cnt, 2, [times.sunset.getHours(), times.sunset.getMinutes(), times.sunset.getSeconds()]);
-    data.setCell(cnt, 1, [23, 59, 59]);
+    data.setCell(cnt, indexHead,     crtDate);
+    data.setCell(cnt, indexSunrise,  [times.sunrise.getHours(), times.sunrise.getMinutes(), times.sunrise.getSeconds()]);
+    data.setCell(cnt, indexSunset,   [times.sunset.getHours(), times.sunset.getMinutes(), times.sunset.getSeconds()]);
+    data.setCell(cnt, indexMidnight, [23, 59, 59]);
+    
+    // now
+    if (crtDate.getYear() == now.getYear()
+        && crtDate.getMonth() == now.getMonth()
+        && crtDate.getDate() == now.getDate()) {
+      data.setCell(cnt, indexNow, [now.getHours(), now.getMinutes(), now.getSeconds()]);
+    } 
 
     myDate.setDate(myDate.getDate()+1);
   }
@@ -94,9 +104,10 @@ function drawChart() {
                   // fontName: 'monospace',
                   titlePosition: 'none',
                   series: {
-                    0:{color: night, areaOpacity: 1},   // after sunset
-                    1:{color: sunshine, areaOpacity: 1},// sunshine
-                    2:{color: night, areaOpacity: 1}    // before sunrise
+                    0:{color: night, areaOpacity: 1},                            // after sunset
+                    1:{color: sunshine, areaOpacity: 1},                         // sunshine
+                    2:{color: night, areaOpacity: 1},                            // before sunrise
+                    3:{color: 'red', areaOpacity: 0, lineWidth: 0, pointSize: 4} // now
                   },
                   selectionMode: 'multiple',
                 };
@@ -144,11 +155,10 @@ function placeMarker(location) {
   lat = location.lat();
   lng = location.lng();
 
+  // chart update
   drawChart();
 
   codeLatLng(location);
-
-  // map.setCenter(location);
 }
 
 function codeLatLng(location) {
