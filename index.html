@@ -89,14 +89,14 @@ function drawChart() {
                   height:320,
                   vAxis: {ticks: [[0, 0, 0], [6, 0, 0], [8, 0, 0], [10, 0, 0], [16, 0, 0], [18, 0, 0], [20, 0, 0], [23, 59, 59]]},
                   hAxis: {ticks: [new Date(year, 0, 1)]},
-                  chartArea: {left: 50, top: 15, width: '95%', height: '90%'},
+                  chartArea: {left: 50, top: 15, width: '95%', height: '80%'},
                   legend: { position: "none" },
                   // fontName: 'monospace',
                   titlePosition: 'none',
                   series: {
-                    0:{color: night, areaOpacity: 0.4},   // after sunset
-                    1:{color: sunshine, areaOpacity: 0.6},// sunshine
-                    2:{color: night, areaOpacity: 0.4}    // before sunrise
+                    0:{color: night, areaOpacity: 1},   // after sunset
+                    1:{color: sunshine, areaOpacity: 1},// sunshine
+                    2:{color: night, areaOpacity: 1}    // before sunrise
                   },
                   selectionMode: 'multiple',
                 };
