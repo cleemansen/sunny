@@ -36,7 +36,7 @@ var geocoder;
 // color
 var night = '#282729';
 var sunshine = '#CC6F05';
-
+var nowColor = "#0591CC";
 /* ################################################################## *
  *                                chart stuff
  * ################################################################## */
@@ -107,7 +107,7 @@ function drawChart() {
                     0:{color: night, areaOpacity: 1},                            // after sunset
                     1:{color: sunshine, areaOpacity: 1},                         // sunshine
                     2:{color: night, areaOpacity: 1},                            // before sunrise
-                    3:{color: 'red', areaOpacity: 0, lineWidth: 0, pointSize: 4} // now
+                    3:{color: nowColor, areaOpacity: 0, lineWidth: 0, pointSize: 4} // now
                   },
                   selectionMode: 'multiple',
                 };
