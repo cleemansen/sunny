@@ -1,0 +1,26 @@
+diff --git a/index.html b/index.html
+index 088831f..3818b5b 100644
+--- a/index.html
++++ b/index.html
+@@ -104,16 +104,16 @@ function drawChart() {
+                   // fontName: 'monospace',
+                   titlePosition: 'none',
+                   series: {
+-                    0:{color: night, areaOpacity: 1},                            // after sunset
+-                    1:{color: sunshine, areaOpacity: 1},                         // sunshine
+-                    2:{color: night, areaOpacity: 1},                            // before sunrise
++                    0:{type: 'line', color: night, areaOpacity: 1, visibleInLegend: false, enableInteractivity: false}, // after sunset
++                    1:{type: 'line', color: sunshine, areaOpacity: 1},                         // sunshine
++                    2:{type: 'line', color: night, areaOpacity: 1},                            // before sunrise
+                     3:{color: 'red', areaOpacity: 0, lineWidth: 0, pointSize: 4} // now
+                   },
+                   selectionMode: 'multiple',
+                 };
+ 
+   // Create and draw the visualization.
+-  var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
++  var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
+ 
+   chart.draw(data, options);
+ }
+
