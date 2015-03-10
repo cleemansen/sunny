@@ -28,7 +28,7 @@
 var lat = 47.662369;
 var lng = 9.17322315;
 // year
-var year = 2014;
+var year = new Date().getFullYear();
 // the map
 var map;
 var marker;
@@ -146,6 +146,8 @@ function initMap() {
   google.maps.event.addListener(map, 'click', function(event) {
     placeMarker(event.latLng);
   });
+
+  document.getElementById('yearInTitle').innerHTML = year;
 }
 
 function placeMarker(location) {
@@ -180,7 +182,7 @@ function codeLatLng(location) {
   </script>
 </head>
 <body onload="initMap()">
-  <h3><span class="mark">☀☀☀☀☀</span>: <span class="mark">sunrise / sunset</span> during <span class="mark">2014</span></span> @<span id="location" class="mark">kn</span></h3>
+  <h3><span class="mark">☀☀☀☀☀</span>: <span class="mark">sunrise / sunset</span> during <span id="yearInTitle" class="mark">2014</span></span> @<span id="location" class="mark">kn</span></h3>
   <div>
     <div id="chart_div"></div>
   <div id="map_canvas" style="width:100%; height:250px"></div>
